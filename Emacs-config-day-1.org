@@ -1,0 +1,102 @@
+#+title:    Records of Emacs Congig
+#+startup:  content  
+
+* Preface
+
+  This note was written by Emacs in MSYS2 edition (~mingw-w64-x86_64-emacs~). This
+  edition has some shortcoming since it relys on the config of ~MSYS2~.
+
+  A obvious shortcoming is that neither `Info' nor `Emacs info' can show the node
+  `emacs' in info Top, even though there is a file ~emacs.info~ in directory
+  /d/msys64/mingw64/share/info, so that I had to try three ways to solve this
+  problem, see section [[construct info]].
+
+  Also, this edition is lack of many common packages which need user to install
+  manually.
+
+  Seting Monoca font upon size 10 shows perfect, which the small size make a large
+  view and this font still shows clearly.
+
+* installation
+   
+  In ~MSYSY2~, install Emacs (64bits build) with the following:
+  #+begin_example
+  pacman -S mingw-w64-x86_64-emacs
+  #+end_example
+   
+* construct info
+
+  ~MSYS2~ shell shows a little info terms than what we want.
+
+  To enable I can use `Emacs Info' to read help document of Emacs and more other
+  terms. I need to reconstruct or expanding, more precisely, the `info-dir' of the
+  primitive Info system in MSYS2.
+
+  My try three ways to add Emacs in Info.
+
+  + Edit ~INFOPATH~, failed; [fn:1] \\
+    This variable is set in file ~/etc/profile~ in /path/to/git-for-windows, /msys64 and
+    /msys64/mingw64; In file ~profile~ there is a line written as below: 
+    #+BEGIN_EXAMPLE
+    INFOPATH='/usr/local/info :/usr/share/info:/usr/info:/share/info'
+    #+END_EXAMPLE
+    Add ~/msys64/mingw64/share/info :/d/msys64/usr/share/info~ to above
+    ~INFOPATH~. Unfortunately it doesn't work, I still can't read emacs help document with Info
+    reader, which shows that it does nothing only fixing ~INFOPATH~.
+
+  + Download ~emacs.info.gz~ and copy it to ~infopath~. It failed;
+
+  + Use the `Texinfo documentation system' ~Texinfo~, search it in emacs info for
+    help. \\ 
+    Rrefrence:
+    
+    #+BEGIN_QUOTE
+    'install-info' inserts menu entries from an Info file into the top-level 'dir'
+    file in the Info system. 'install-info' also removes menu entries from the 'dir'
+    file.  It's most often run as part of software installation, or when
+    constructing a 'dir' file for all manuals on a system.  Synopsis:
+        #+BEGIN_SRC 
+	install-info [OPTION...] [INFO-FILE [DIR-FILE]]
+        #+END_SRC
+    If ~INFO-FILE~ or ~DIR-FILE~ are not specified, the options (described below) that
+    define them must be.
+    #+BEGIN_VERSE
+      ~'--info-file=FILE'~
+	   Specify Info file to install in the directory. This is equivalent to using the ~INFO-FILE~ argument.
+  
+      ~'--info-dir=DIR'~ 
+           Specify the _directory_ where the directory file 'dir' resides. Equivalent to ~'--dir-file=DIR/dir'~.\\
+	   ~**ding**~ This option use `dir' file as the directory file in default.
+
+      ~'--dir-file=NAME'~
+           Specify file name of the Info directory file.  This is equivalent to using the ~DIR-FILE~ argument.
+    #+END_VERSE    
+    #+END_QUOTE
+
+    Try,
+    | bash command                                                            | result    |
+    |-------------------------------------------------------------------------+-----------|
+    | $ install-info  emacs.info.gz dir                                       | :(        |
+    | $ install-info  --info-file=emacs.info.gz  --info-dir=/usr/share/info/  | :D        |
+    | $ install-info  --info-file=elisp.info  --info-dir=/mingw64/share/info/ | :( [fn:2] |
+    | $ install-info  --info-file=elisp.info  --info-dir=/usr/share/info/     | :D [fn:3] |
+     
+    Here I attempted to add Emacs info file to Info system, and I succeeded although
+    it is very rough beacuse I can't control or select which subtree should one term
+    belongs to, and I can only add them in level-top roughly. But now, that's enough
+    :D
+
+* Footnotes
+  
+[fn:1] Try to use =\\= instead of `blank line' to *visually* separate the plain text
+term with its text body. I think the a blank line added between plain text term and
+its body seems
+
+[fn:2] No warning in execute `install-info', probably because `which info' point to
+/usrbin/info not related to minGW64, so it still doesn't work. I don't know why!
+
+[fn:3] No warning in execute `install-info', generate a node named `Elisp' in
+top-level `dir' belongs to term `Emacs', but prompt `no info file exist' after
+clicking this hyperlink, since file ~elisp.info~ doesn't in ~/usr/share/info/~,
+namely we should copy info file to ~/usr/share/info/~.
+
