@@ -1,4 +1,4 @@
-#+title:    Records of Emacs Congig
+#+title:    Records of Emacs Config
 #+startup:  content  
 
 * Preface
